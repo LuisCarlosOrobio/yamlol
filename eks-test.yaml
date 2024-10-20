@@ -1,0 +1,60 @@
+vpc:           
+  subnets:           
+    public:           
+      us-east-1a:           
+        id: "subnet-a"           
+      us-east-1b:           
+        id: "subnet-b"           
+      us-east-1c:           
+        id: "subnet-c"           
+    nodegroups:           
+      - name: eks-test-ng           
+        tags:           
+          Name: Node EKS           
+          "k8s.io/cluster-autoscaler/enabled": "owned"           
+          "k8s.io/cluster-autoscaler/eks-test": "true"           
+          instanceType: t2.medium           
+          minSize: 1           
+          maxSize: 10           
+          desiredCapacity: 1           
+    kubeletExtraConfig:           
+      kubeReserved:           
+        cpu: "100m"           
+        memory: "100Mi"           
+        ephemeral-storage: "1Gi"           
+      evictionHard:           
+        memory.available: "100Mi"           
+        nodefs.available: "10%"           
+      featureGates:           
+        DynamicKubeletConfig: true           
+        RotateKubeletServerCertificate: true
+    ssh:             
+      allow: true           
+      publicKeyName: eks-key           
+    labels:           
+      role: workerAll
+
+    asgMetricsCollection:
+      - granularity: 1Minute
+        metrics:
+          - GroupMinSize
+          - GroupMaxSize
+          - GroupDesiredCapacity
+          - GroupInServiceInstances
+          - GroupPendingInstances
+          - GroupStandbyInstances
+          - GroupTerminatingInstances
+          - GroupTotalInstances
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        albIngress: true
+        externalDNS: true
+        certManager: true
+        ebs: true
+        cloudWatch : true
+
+cloudWatch:
+  clusterLogging: 
+    enableTypes: ["audit", "authenticator", "api", "controllerManager", "scheduler"]
